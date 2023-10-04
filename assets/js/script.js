@@ -30,3 +30,29 @@
 // 7. Make the timer value very high to begin with
 // 8. Console.log whatever you need for testing
 //
+
+// Best practices for state management - save to external data whenever anything changes u need to save
+
+// This is applicable to the HW
+
+/*
+  1. Check for saved state
+  2. Put any saved state we have into memory (global variable)
+  3. Anytime state changes:
+     - Update local storage w/ new state
+*/
+
+// var appData;   // single source of truth
+
+// function start() {
+//   appData = JSON.parse(localStorage.getItem("appData"));
+// }
+
+// function saveChanges() {
+//   localStorage.setItem("appData", JSON.stringify(appData));
+// }
+
+// function userGetsQuestionCorrect() {
+//   appData.user.points += 50;
+//   saveChanges();
+// }

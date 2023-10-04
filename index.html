@@ -4,13 +4,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>JavaScript Quiz!</title>
   <link rel="stylesheet" href="./assets/css/reset.css" />
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
 <body>
 
+  <header class="top-bar">
+    <div class="high-scores">View High Scores</div>
+
+    <div class="timer">Time:
+      <span class="seconds">0</span>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="quiz">
+
+      <div class="bold-text">The Great JavaScript Quiz</div>
+
+      <div class="regular-text">Are you ready to find out how well you know JavaScript? If so, hit the button below to
+        dive into the challenge of your life! You have 75 seconds to make it through - but choose wisely. Incorrect
+        answers will deduct 15 seconds of your time! Prove your intellect by achieving a High Score! GOOD LUCK!</div>
+
+      <div class="buttons">
+        <button>Start quiz!</button>
+      </div>
+
+      <!-- add this dynamically in JS when answer submitted -->
+      <div class="answer-feedback">Correct!</div>
+    </div>
+  </main>
 
   <script src="./assets/js/script.js"></script>
 </body>
