@@ -1,8 +1,3 @@
-//   AS A coding boot camp student
-// I WANT to take a timed quiz on JavaScript fundamentals that stores high scores
-// SO THAT I can gauge my progress compared to my peers
-//   ```
-
 // ## Acceptance Criteria
 
 // ```
@@ -56,3 +51,127 @@
 //   appData.user.points += 50;
 //   saveChanges();
 // }
+
+// var li4 = document.createElement("li");
+// li4.textContent = "Cupcakes 🧁 ";
+// body.appendChild(favoriteEl);
+// h1El.setAttribute("style", "margin:auto; width:50%; text-align:center;");
+
+const START = -1;
+const HIGH_SCORES = 999;
+
+var body = document.querySelector("body");
+var highScores = document.querySelector(".high-scores");
+var seconds = document.querySelector(".seconds");
+var quiz = document.querySelector(".quiz");
+var boldText = document.querySelector(".bold-text");
+var regularText = document.querySelector(".regular-text");
+var buttons = document.querySelector("buttons");
+
+var questions = [
+  {
+    boldText: "What is a regular Number?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "64-bit integer",
+    btn2: "32-bit floating point number",
+    btn3: "32-bit integer",
+    btn4: "double precision floating point number",
+    rightAnswer: "#btn4"
+  },
+
+  {
+    boldText: "Which of these programming languages has the least in common with JavaScript?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "Dart",
+    btn2: "Haxe",
+    btn3: "Haskell",
+    btn4: "Opa",
+    rightAnswer: "#btn3"
+  }
+];
+
+var quizState = START;
+var currentQuestion = {};
+var points = 0;
+var secondsLeft = 0;
+
+body.addEventListener("click", handleClick);
+
+function handleClick(e) {
+
+  if (e.target.matches("#btn1")) {
+    if (quizState === START) {
+      quizState++;
+      secondsLeft = 75;
+      nextQuestion();
+    }
+    else if (quizState === HIGH_SCORES) {
+      quizState = START;
+
+      // handle high score purple button #1 (go to beginning) here
+    }
+    else {
+      quizState++;
+      nextQuestion();
+      // handle quiz question button #1 here (add checkIfRight function)
+    }
+  }
+  else if (e.target.matches("#btn2")) {
+    if (quizState === HIGH_SCORES) {
+      // handle high score purple button #2 (erase high scores) here
+    }
+    else {
+      // handle quiz question button #2 here
+    }
+  }
+  else if (e.target.matches("#btn3")) {
+    // handle quiz question button #3 here
+  }
+  else if (e.target.matches("#btn4")) {
+    // handle quiz question button #4 here
+  }
+  else if (e.target.matches(".high-scores")) {
+    displayHighScores(false);
+
+    // add text to elements, add and style as needed
+  }
+}
+
+function nextQuestion() {
+
+  // done with questions, go to high scores
+  if (questions[quizState] === undefined)
+    displayHighScores(true);
+  else { // next question exists
+    console.log("question exists");
+
+    currentQuestion = questions[quizState];
+  }
+}
+
+function displayHighScores(gameFinished) {
+
+  if (!gameFinished)
+    points = 0;
+
+  resetVars();
+  quizState = HIGH_SCORES;
+}
+
+function resetVars() {
+
+  currentQuestion = {};
+  secondsLeft = 0;
+}
+// var answerFeedback = document.createElement("div");
+
+// answerFeedback.setAttribute("class", "answer-feedback");
+
+// answerFeedback.textContent = "Correct!";
+
+// quiz.appendChild(answerFeedback);
+// quiz.setAttribute("style", "display:inline;");
+
+

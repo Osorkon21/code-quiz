@@ -50,10 +50,7 @@ main {
 /* quiz area screen size */
 .quiz {
   width: 55%;
-
-  /* revert in JS to display: inline? or display: block? to bounce everything over to the left and to get answer feedback to stretch across the whole quiz div */
   display: flex;
-
   flex-direction: column;
   align-items: center;
 }
@@ -76,7 +73,7 @@ main {
 /* button styling */
 button {
   display: block;
-  font-family: cursive;
+  font-family: cursive, sans-serif;
   font-size: 16px;
   margin: 10px;
   background-color: purple;
