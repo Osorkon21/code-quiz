@@ -68,6 +68,15 @@ var boldText = document.querySelector(".bold-text");
 var regularText = document.querySelector(".regular-text");
 var buttons = document.querySelector("buttons");
 
+var startContent = [
+  {
+    boldText: "The Great JavaScript Quiz",
+    regularText: "Are you ready to find out how well you know JavaScript? If so, hit the button below to dive into the challenge of your life! You have 75 seconds to make it through - but choose wisely.Incorrect answers will deduct 15 seconds of your time! Prove your intellect by achieving a High Score! GOOD LUCK!",
+    buttonCount: 1,
+    btn1: "Start quiz!"
+  }
+];
+
 var questions = [
   {
     boldText: "What is a regular Number?",
@@ -92,10 +101,16 @@ var questions = [
   }
 ];
 
+// var highScoreContent= [ {} ]
+
 var quizState = START;
 var currentQuestion = {};
 var points = 0;
 var secondsLeft = 0;
+
+function setToStart() {
+
+}
 
 body.addEventListener("click", handleClick);
 
@@ -148,7 +163,40 @@ function nextQuestion() {
     console.log("question exists");
 
     currentQuestion = questions[quizState];
+    eraseButtons();
+    addButtons(currentQuestion.buttonCount);
   }
+}
+
+function eraseButtons() {
+  for (var i = 1; i <= 4; i++) {
+    var button = document.querySelector("#btn" + i);
+
+    // if button exists, delete it
+    if (button !== null)
+      button.remove();
+  }
+}
+
+function addButtons(buttonCount) {
+  for (var i = 1; i <= buttonCount; i++) {
+    var newBtn = document.createElement("button");
+    var btnText = "";
+
+    newBtn.setAttribute("id", "btn" + i);
+    btnText = getBtnText(i);
+  }
+}
+
+function getBtnText(buttonNum) {
+  if (buttonNum === 1)
+    return currentQuestion.btn1;
+  else if (buttonNum === 2)
+    return currentQuestion.btn2;
+  else if (buttonNum === 3)
+    return currentQuestion.btn3;
+  else
+    return currentQuestion.btn4;
 }
 
 function displayHighScores(gameFinished) {
@@ -174,4 +222,4 @@ function resetVars() {
 // quiz.appendChild(answerFeedback);
 // quiz.setAttribute("style", "display:inline;");
 
-
+setToStart();
