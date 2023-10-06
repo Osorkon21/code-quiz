@@ -16,7 +16,7 @@
 var pageContents = [
   {
     boldText: "The Great JavaScript Quiz",
-    regularText: "Are you ready to find out how well you know JavaScript? If so, hit the button below to dive into the challenge of your life! You have 75 seconds to make it through - but choose wisely. Incorrect answers will deduct 15 seconds of your time (and score)! Prove your intellect by achieving a High Score! GOOD LUCK!",
+    regularText: "Are you ready to find out how well you know JavaScript? If so, hit the button below to dive into the challenge of your life!\xa0 You have 75 seconds to make it through - but choose wisely.\xa0 Incorrect answers will deduct 15 seconds of your time (and score)!\xa0 Prove your intellect by achieving a High Score!\xa0 GOOD LUCK!",
     buttonCount: 1,
     btn1: "Start quiz!"
   },
@@ -45,7 +45,7 @@ var pageContents = [
 
   {
     boldText: "Save your high score!",
-    regularText: "Submit your initials - they will be engraved on these virtual walls for eternity! Unless you clear your cache.",
+    regularText: "Submit your initials.\xa0 They will be engraved on these virtual walls for eternity!\xa0 Unless you clear your cache.",
     buttonCount: 1,
     btn1: "Submit"
   },
@@ -60,7 +60,6 @@ var pageContents = [
 ];
 
 var body = document.querySelector("body");
-var highScoresLink = document.querySelector(".high-scores-link");
 var seconds = document.querySelector(".seconds");
 var quiz = document.querySelector(".quiz");
 var boldText = document.querySelector(".bold-text");
@@ -76,12 +75,12 @@ var quizState = START;
 var currentQuestion = {};
 var points = 0;
 var secondsLeft = 0;
+var stopCounting = false;
 
 function start() {
   quizState = START;
   currentQuestion = {};
   points = 0;
-  secondsLeft = 0;
 
   quiz.setAttribute("style", "display: flex");
   buttons.setAttribute("style", "display: block");
@@ -91,7 +90,6 @@ function start() {
 }
 
 function updatePage(goToNextPage = false) {
-
   if (goToNextPage)
     quizState++;
 
@@ -101,11 +99,14 @@ function updatePage(goToNextPage = false) {
   updateButtons();
   updateElements();
   updateStyle();
+  updateTimer();
 }
 
 function updateText() {
   boldText.textContent = currentQuestion.boldText;
   regularText.textContent = currentQuestion.regularText;
+
+
 }
 
 function updateButtons() {
@@ -114,6 +115,8 @@ function updateButtons() {
 }
 
 function updateElements() {
+  removeElements("answer-feedback");
+
   if (quizState === SUBMIT_HIGH_SCORE) {
     addElements("form");
   }
@@ -126,23 +129,67 @@ function updateElements() {
   }
 }
 
+function updateStyle() {
+  if (quizState === SUBMIT_HIGH_SCORE) {
+    regularText.setAttribute("style", "text-align: start");
+  }
+  else if (quizState === HIGH_SCORES) {
+    buttons.setAttribute("style", "display: flex");
+  }
+}
+
+function updateTimer() {
+  if (quizState === SUBMIT_HIGH_SCORE) {
+    points = secondsLeft;
+
+    console.log(points);
+    stopTimer(false);
+  }
+}
+
+function stopTimer(goToSubmit) {
+  document.querySelector(".seconds").textContent = 0;
+  secondsLeft = 0;
+  stopCounting = true;
+
+  if (goToSubmit) {
+    quizState = SUBMIT_HIGH_SCORE;
+    updatePage();
+  }
+}
+
 function addElements(elName) {
   if (elName === "form") {
-    var formEl = document.createElement("form");
-    var labelEl = document.createElement("label");
-    var inputEl = document.createElement("input");
+    var formAlreadyPresent = document.querySelector("form");
 
-    formEl.setAttribute("style", "margin-top: 10px");
-    labelEl.setAttribute("for", "initials");
-    inputEl.setAttribute("id", "initials");
-    labelEl.textContent = "Initials: ";
+    if (!formAlreadyPresent) {
+      var formEl = document.createElement("form");
+      var labelEl = document.createElement("label");
+      var inputEl = document.createElement("input");
 
-    formEl.append(labelEl);
-    formEl.append(inputEl);
-    quiz.insertBefore(formEl, buttons);
+      formEl.setAttribute("style", "margin-top: 10px");
+      labelEl.setAttribute("for", "initials");
+      inputEl.setAttribute("id", "initials");
+      labelEl.textContent = "Initials: ";
+
+      formEl.append(labelEl);
+      formEl.append(inputEl);
+      quiz.insertBefore(formEl, buttons);
+    }
   }
   else if (elName === "high-scores") {
-    // add div for each high score in local storage, display it
+    var surroundingDiv = document.createElement("div");
+    surroundingDiv.setAttribute("id", "high-score-container");
+
+    for (var i = 0; i < highScores.length; i++) {
+      var divEl = document.createElement("div");
+
+      divEl.setAttribute("id", "high-score");
+      divEl.textContent = `${i + 1}.\xa0 ${highScores[i].initials.toUpperCase()} - ${highScores[i].score}`;
+      surroundingDiv.append(divEl);
+    }
+
+    quiz.insertBefore(surroundingDiv, buttons);
   }
 }
 
@@ -154,16 +201,16 @@ function removeElements(elName) {
       formEl.remove();
   }
   else if (elName === "high-scores") {
-    // if (high score boxes present) erase them
-  }
-}
+    var containerEl = document.querySelector("#high-score-container");
 
-function updateStyle() {
-  if (quizState === SUBMIT_HIGH_SCORE) {
-    regularText.setAttribute("style", "text-align: start");
+    if (containerEl !== null)
+      containerEl.remove();
   }
-  else if (quizState === HIGH_SCORES) {
-    buttons.setAttribute("style", "display: flex");
+  else if (elName === "answer-feedback") {
+    var answerFeedbackEl = document.querySelector(".answer-feedback");
+
+    if (answerFeedbackEl !== null)
+      answerFeedbackEl.remove();
   }
 }
 
@@ -182,37 +229,51 @@ function addButtons(buttonCount) {
 
     newBtn.setAttribute("id", "btn" + i);
     newBtn.textContent = currentQuestion["btn" + i];
-    buttons.appendChild(newBtn);
+    buttons.append(newBtn);
   }
 }
 
 function onAnswer(answer) {
-  console.log(answer);
+  var rightAnswer = currentQuestion.rightAnswer;
 
   updatePage(true);
-  checkAnswer(answer);
+  checkAnswer(answer, rightAnswer);
 }
 
-function checkAnswer(answer) {
-  // var answerFeedback = document.createElement("div");
+function checkAnswer(answer, rightAnswer) {
 
-  // answerFeedback.setAttribute("class", "answer-feedback");
+  var correct = (answer === rightAnswer);
 
-  // answerFeedback.textContent = "Correct!";
+  addFeedback(correct);
 
-  // quiz.appendChild(answerFeedback);
-
-  // subtract time if necessary
+  if (!correct)
+    deductTime(15);
 }
 
-function displayHighScores(gameFinished) {
+function addFeedback(correct) {
+  var answerFeedback = document.createElement("div");
 
-  if (!gameFinished)
-    points = 0;
+  answerFeedback.setAttribute("class", "answer-feedback");
+
+  if (correct)
+    answerFeedback.textContent = "Correct!";
   else
-    points = secondsLeft;
+    answerFeedback.textContent = "Wrong!";
 
-  secondsLeft = 0;
+  quiz.appendChild(answerFeedback);
+}
+
+function deductTime(val) {
+  secondsLeft -= val;
+
+  console.log(secondsLeft);
+  console.log(points);
+
+  if (secondsLeft <= 0)
+    stopTimer(true);
+}
+
+function displayHighScores() {
   quizState = HIGH_SCORES;
   updatePage();
 }
@@ -220,8 +281,10 @@ function displayHighScores(gameFinished) {
 function addHighScore() {
   var highScore = {
     initials: document.querySelector("input").value,
-    score: secondsLeft
+    score: points
   };
+
+  console.log(highScore);
 
   if (highScores === null)
     highScores = [];
@@ -278,7 +341,11 @@ function handleClick(e) {
     onAnswer(e.target.getAttribute("id"));
   }
   else if (e.target.matches(".high-scores-link")) {
-    displayHighScores(false);
+    if (quizState !== HIGH_SCORES) {
+      quiz.setAttribute("style", "display: inline");
+      displayHighScores();
+      stopTimer(false);
+    }
   }
 }
 
