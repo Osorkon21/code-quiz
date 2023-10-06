@@ -19,7 +19,7 @@ header {
 }
 
 /* format highscore text */
-.high-scores {
+.high-scores-link {
   color: blue;
 
   /* Change cursor appearance on hover */
@@ -27,12 +27,12 @@ header {
 }
 
 /* on hover */
-.high-scores:hover {
+.high-scores-link:hover {
   color: orange;
 }
 
 /* on click */
-.high-scores:active {
+.high-scores-link:active {
   color: black;
 }
 
@@ -50,7 +50,6 @@ main {
 /* quiz area screen size */
 .quiz {
   width: 55%;
-  display: flex;
   flex-direction: column;
   align-items: center;
 }
@@ -64,9 +63,8 @@ main {
   margin-bottom: 12px;
 }
 
-/* position of non-bold text in quiz area */
+/* line spacing of non-bold text in quiz area */
 .regular-text {
-  text-align: center;
   line-height: 1.15;
 }
 

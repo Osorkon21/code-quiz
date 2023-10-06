@@ -13,158 +13,157 @@
 // WHEN the game is over
 // THEN I can save my initials and my score
 
-// HOMEWORK TIPS
-
-//
-// 1. Be thinking about how an array of objects might be very useful here
-// 2. Use functions to control the overflow flow of things
-// 3. No questions/answers in the HTML
-// 4. How can we generate each new question and its answers on demand
-// 5. How can we keep track of which question is on-screen
-// 6. Get the quiz to work with 1-2 questions
-// 7. Make the timer value very high to begin with
-// 8. Console.log whatever you need for testing
-//
-
-// Best practices for state management - save to external data whenever anything changes u need to save
-
-// This is applicable to the HW
-
-/*
-  1. Check for saved state
-  2. Put any saved state we have into memory (global variable)
-  3. Anytime state changes:
-     - Update local storage w/ new state
-*/
-
-// var appData;   // single source of truth
-
-// function start() {
-//   appData = JSON.parse(localStorage.getItem("appData"));
-// }
-
-// function saveChanges() {
-//   localStorage.setItem("appData", JSON.stringify(appData));
-// }
-
-// function userGetsQuestionCorrect() {
-//   appData.user.points += 50;
-//   saveChanges();
-// }
-
-// var li4 = document.createElement("li");
-// li4.textContent = "Cupcakes 🧁 ";
-// body.appendChild(favoriteEl);
-// h1El.setAttribute("style", "margin:auto; width:50%; text-align:center;");
-
-const START = -1;
-const HIGH_SCORES = 999;
-
-var body = document.querySelector("body");
-var highScores = document.querySelector(".high-scores");
-var seconds = document.querySelector(".seconds");
-var quiz = document.querySelector(".quiz");
-var boldText = document.querySelector(".bold-text");
-var regularText = document.querySelector(".regular-text");
-var buttons = document.querySelector("buttons");
-
-var startContent = [
+var pageContents = [
   {
     boldText: "The Great JavaScript Quiz",
-    regularText: "Are you ready to find out how well you know JavaScript? If so, hit the button below to dive into the challenge of your life! You have 75 seconds to make it through - but choose wisely.Incorrect answers will deduct 15 seconds of your time! Prove your intellect by achieving a High Score! GOOD LUCK!",
+    regularText: "Are you ready to find out how well you know JavaScript? If so, hit the button below to dive into the challenge of your life! You have 75 seconds to make it through - but choose wisely. Incorrect answers will deduct 15 seconds of your time (and score)! Prove your intellect by achieving a High Score! GOOD LUCK!",
     buttonCount: 1,
     btn1: "Start quiz!"
-  }
-];
+  },
 
-var questions = [
   {
-    boldText: "What is a regular Number?",
+    boldText: "A regular Number is a ___.",
     regularText: "",
     buttonCount: 4,
-    btn1: "64-bit integer",
-    btn2: "32-bit floating point number",
-    btn3: "32-bit integer",
-    btn4: "double precision floating point number",
-    rightAnswer: "#btn4"
+    btn1: "1. 64-bit integer",
+    btn2: "2. 32-bit floating point number",
+    btn3: "3. 32-bit integer",
+    btn4: "4. double precision floating point number",
+    rightAnswer: "btn4"
   },
 
   {
     boldText: "Which of these programming languages has the least in common with JavaScript?",
     regularText: "",
     buttonCount: 4,
-    btn1: "Dart",
-    btn2: "Haxe",
-    btn3: "Haskell",
-    btn4: "Opa",
-    rightAnswer: "#btn3"
+    btn1: "1. Dart",
+    btn2: "2. Haxe",
+    btn3: "3. Haskell",
+    btn4: "4. Opa",
+    rightAnswer: "btn3"
+  },
+
+  {
+    boldText: "Save your high score!",
+    regularText: "Submit your initials - they will be engraved on these virtual walls for eternity! Unless you clear your cache.",
+    buttonCount: 1,
+    btn1: "Submit"
+  },
+
+  {
+    boldText: "High Scores",
+    regularText: "",
+    buttonCount: 2,
+    btn1: "Main Menu",
+    btn2: "Erase High Scores"
   }
 ];
 
-// var highScoreContent= [ {} ]
+var body = document.querySelector("body");
+var highScoresLink = document.querySelector(".high-scores-link");
+var seconds = document.querySelector(".seconds");
+var quiz = document.querySelector(".quiz");
+var boldText = document.querySelector(".bold-text");
+var regularText = document.querySelector(".regular-text");
+var buttons = document.querySelector(".buttons");
+var highScores = JSON.parse(localStorage.getItem("highScores"));
+
+const START = 0;
+const SUBMIT_HIGH_SCORE = pageContents.length - 2;
+const HIGH_SCORES = pageContents.length - 1;
 
 var quizState = START;
 var currentQuestion = {};
 var points = 0;
 var secondsLeft = 0;
 
-function setToStart() {
+function start() {
+  quizState = START;
+  currentQuestion = {};
+  points = 0;
+  secondsLeft = 0;
 
+  quiz.setAttribute("style", "display: flex");
+  buttons.setAttribute("style", "display: block");
+  regularText.setAttribute("style", "text-align: center");
+
+  updatePage();
 }
 
-body.addEventListener("click", handleClick);
+function updatePage(goToNextPage = false) {
 
-function handleClick(e) {
+  if (goToNextPage)
+    quizState++;
 
-  if (e.target.matches("#btn1")) {
-    if (quizState === START) {
-      quizState++;
-      secondsLeft = 75;
-      nextQuestion();
-    }
-    else if (quizState === HIGH_SCORES) {
-      quizState = START;
+  currentQuestion = pageContents[quizState];
 
-      // handle high score purple button #1 (go to beginning) here
-    }
-    else {
-      quizState++;
-      nextQuestion();
-      // handle quiz question button #1 here (add checkIfRight function)
-    }
-  }
-  else if (e.target.matches("#btn2")) {
-    if (quizState === HIGH_SCORES) {
-      // handle high score purple button #2 (erase high scores) here
-    }
-    else {
-      // handle quiz question button #2 here
-    }
-  }
-  else if (e.target.matches("#btn3")) {
-    // handle quiz question button #3 here
-  }
-  else if (e.target.matches("#btn4")) {
-    // handle quiz question button #4 here
-  }
-  else if (e.target.matches(".high-scores")) {
-    displayHighScores(false);
+  updateText();
+  updateButtons();
+  updateElements();
+  updateStyle();
+}
 
-    // add text to elements, add and style as needed
+function updateText() {
+  boldText.textContent = currentQuestion.boldText;
+  regularText.textContent = currentQuestion.regularText;
+}
+
+function updateButtons() {
+  eraseButtons();
+  addButtons(currentQuestion.buttonCount);
+}
+
+function updateElements() {
+  if (quizState === SUBMIT_HIGH_SCORE) {
+    addElements("form");
+  }
+  else if (quizState === HIGH_SCORES) {
+    removeElements("form");
+    addElements("high-scores");
+  }
+  else if (quizState === START) {
+    removeElements("high-scores");
   }
 }
 
-function nextQuestion() {
+function addElements(elName) {
+  if (elName === "form") {
+    var formEl = document.createElement("form");
+    var labelEl = document.createElement("label");
+    var inputEl = document.createElement("input");
 
-  // done with questions, go to high scores
-  if (questions[quizState] === undefined)
-    displayHighScores(true);
-  else { // next question exists
-    console.log("question exists");
+    formEl.setAttribute("style", "margin-top: 10px");
+    labelEl.setAttribute("for", "initials");
+    inputEl.setAttribute("id", "initials");
+    labelEl.textContent = "Initials: ";
 
-    currentQuestion = questions[quizState];
-    eraseButtons();
-    addButtons(currentQuestion.buttonCount);
+    formEl.append(labelEl);
+    formEl.append(inputEl);
+    quiz.insertBefore(formEl, buttons);
+  }
+  else if (elName === "high-scores") {
+    // add div for each high score in local storage, display it
+  }
+}
+
+function removeElements(elName) {
+  if (elName === "form") {
+    var formEl = document.querySelector("form");
+
+    if (formEl !== null)
+      formEl.remove();
+  }
+  else if (elName === "high-scores") {
+    // if (high score boxes present) erase them
+  }
+}
+
+function updateStyle() {
+  if (quizState === SUBMIT_HIGH_SCORE) {
+    regularText.setAttribute("style", "text-align: start");
+  }
+  else if (quizState === HIGH_SCORES) {
+    buttons.setAttribute("style", "display: flex");
   }
 }
 
@@ -172,7 +171,6 @@ function eraseButtons() {
   for (var i = 1; i <= 4; i++) {
     var button = document.querySelector("#btn" + i);
 
-    // if button exists, delete it
     if (button !== null)
       button.remove();
   }
@@ -181,45 +179,121 @@ function eraseButtons() {
 function addButtons(buttonCount) {
   for (var i = 1; i <= buttonCount; i++) {
     var newBtn = document.createElement("button");
-    var btnText = "";
 
     newBtn.setAttribute("id", "btn" + i);
-    btnText = getBtnText(i);
+    newBtn.textContent = currentQuestion["btn" + i];
+    buttons.appendChild(newBtn);
   }
 }
 
-function getBtnText(buttonNum) {
-  if (buttonNum === 1)
-    return currentQuestion.btn1;
-  else if (buttonNum === 2)
-    return currentQuestion.btn2;
-  else if (buttonNum === 3)
-    return currentQuestion.btn3;
-  else
-    return currentQuestion.btn4;
+function onAnswer(answer) {
+  console.log(answer);
+
+  updatePage(true);
+  checkAnswer(answer);
+}
+
+function checkAnswer(answer) {
+  // var answerFeedback = document.createElement("div");
+
+  // answerFeedback.setAttribute("class", "answer-feedback");
+
+  // answerFeedback.textContent = "Correct!";
+
+  // quiz.appendChild(answerFeedback);
+
+  // subtract time if necessary
 }
 
 function displayHighScores(gameFinished) {
 
   if (!gameFinished)
     points = 0;
+  else
+    points = secondsLeft;
 
-  resetVars();
-  quizState = HIGH_SCORES;
-}
-
-function resetVars() {
-
-  currentQuestion = {};
   secondsLeft = 0;
+  quizState = HIGH_SCORES;
+  updatePage();
 }
-// var answerFeedback = document.createElement("div");
 
-// answerFeedback.setAttribute("class", "answer-feedback");
+function addHighScore() {
+  var highScore = {
+    initials: document.querySelector("input").value,
+    score: secondsLeft
+  };
 
-// answerFeedback.textContent = "Correct!";
+  if (highScores === null)
+    highScores = [];
 
-// quiz.appendChild(answerFeedback);
-// quiz.setAttribute("style", "display:inline;");
+  if (highScore.initials === "" || highScore.score === 0)
+    return;
 
-setToStart();
+  highScores.push(highScore);
+}
+
+function saveHighScores() {
+  localStorage.setItem("highScores", JSON.stringify(highScores));
+}
+
+function eraseHighScores() {
+  highScores = [];
+  saveHighScores();
+}
+
+function handleClick(e) {
+
+  if (e.target.matches("#btn1")) {
+    if (quizState === START) {
+      secondsLeft = 76;
+      quiz.setAttribute("style", "display: inline");
+      updatePage(true);
+      // start timer
+    }
+    else if (quizState === SUBMIT_HIGH_SCORE) {
+      addHighScore();
+      saveHighScores();
+      updatePage(true);
+    }
+    else if (quizState === HIGH_SCORES) {
+      start();
+    }
+    else {
+      onAnswer(e.target.getAttribute("id"));
+    }
+  }
+  else if (e.target.matches("#btn2")) {
+    if (quizState === HIGH_SCORES) {
+      eraseHighScores();
+      removeElements("high-scores");
+    }
+    else {
+      onAnswer(e.target.getAttribute("id"));
+    }
+  }
+  else if (e.target.matches("#btn3")) {
+    onAnswer(e.target.getAttribute("id"));
+  }
+  else if (e.target.matches("#btn4")) {
+    onAnswer(e.target.getAttribute("id"));
+  }
+  else if (e.target.matches(".high-scores-link")) {
+    displayHighScores(false);
+  }
+}
+
+function handleKeydown(e) {
+  if (quizState === SUBMIT_HIGH_SCORE)
+    if (e.target.matches("input"))
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addHighScore();
+        saveHighScores();
+        updatePage(true);
+      }
+}
+
+start();
+
+body.addEventListener("click", handleClick);
+body.addEventListener("keydown", handleKeydown);
