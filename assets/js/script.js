@@ -1,18 +1,4 @@
-// ## Acceptance Criteria
-
-// ```
-// GIVEN I am taking a code quiz
-// WHEN I click the start button
-// THEN a timer starts and I am presented with a question
-// WHEN I answer a question
-// THEN I am presented with another question
-// WHEN I answer a question incorrectly
-// THEN time is subtracted from the clock
-// WHEN all questions are answered or the timer reaches 0
-// THEN the game is over
-// WHEN the game is over
-// THEN I can save my initials and my score
-
+// contains all questions and question info
 var pageContents = [
   {
     boldText: "The Great JavaScript Quiz",
@@ -22,7 +8,7 @@ var pageContents = [
   },
 
   {
-    boldText: "A regular Number is a ___.",
+    boldText: "A regular Number in Javascript is a ___.",
     regularText: "",
     buttonCount: 4,
     btn1: "1. 64-bit integer",
@@ -44,6 +30,63 @@ var pageContents = [
   },
 
   {
+    boldText: "Which of the following is NOT a Javascript IDE?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "Atom",
+
+    // There is an "Apache NetBeans", but not "NetBeats". Felt pretty sneaky on this one
+    btn2: "Apache NetBeats",
+    btn3: "Brackets",
+    btn4: "Eclipse",
+    rightAnswer: "btn2"
+  },
+
+  {
+    boldText: "Which of these programming languages are generally considered harder to learn than JavaScript?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "Python",
+    btn2: "Visual BASIC",
+    btn3: "C++",
+    btn4: "Ruby",
+    rightAnswer: "btn3"
+  },
+
+  {
+    boldText: "___ percent of all websites use Javascript.",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "98.6%",
+    btn2: "100%",
+    btn3: "99.8%",
+    btn4: "72%",
+    rightAnswer: "btn1"
+  },
+
+  {
+    boldText: "Which of the following is NOT a statement in Javascript?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "do...while",
+    btn2: "for await...of",
+    btn3: "goto",
+    btn4: "for...of",
+    rightAnswer: "btn3"
+  },
+
+  {
+    boldText: "Who created Javascript?",
+    regularText: "",
+    buttonCount: 4,
+    btn1: "Bjarne Stroustrup",
+    btn2: "Dennis Ritchie",
+    btn3: "James Gosling",
+    btn4: "Brendan Eich",
+    rightAnswer: "btn4"
+  },
+
+  {
     boldText: "Save your high score!",
     regularText: "Submit your initials.\xa0 They will be engraved on these virtual walls for eternity!\xa0 Unless you clear your cache.",
     buttonCount: 1,
@@ -59,6 +102,7 @@ var pageContents = [
   }
 ];
 
+// element/class variables
 var body = document.querySelector("body");
 var seconds = document.querySelector(".seconds");
 var quiz = document.querySelector(".quiz");
@@ -67,17 +111,21 @@ var regularText = document.querySelector(".regular-text");
 var buttons = document.querySelector(".buttons");
 var highScores = JSON.parse(localStorage.getItem("highScores"));
 
+// index numbers where special things happen
 const START = 0;
 const SUBMIT_HIGH_SCORE = pageContents.length - 2;
 const HIGH_SCORES = pageContents.length - 1;
 
+// this quiz is a state machine
 var quizState = START;
+
 var currentQuestion = {};
 var points = 0;
-var secondsLeft = 0;
-var stopCounting = false;
+var currentTimer;
+var secondsLeft;
 
-function start() {
+// clears variables, resets styling for main menu
+function startOver() {
   quizState = START;
   currentQuestion = {};
   points = 0;
@@ -89,6 +137,45 @@ function start() {
   updatePage();
 }
 
+// this function was mostly written by Gary
+function startTimer() {
+  currentTimer = setInterval(function () {
+
+    secondsLeft -= 1;
+    document.querySelector(".seconds").textContent = secondsLeft;
+
+    if (secondsLeft === 0)
+      endGame(true);
+
+  }, 1000);
+}
+
+// displays custom YOU LOSE screen if time runs out, clears variables for the next run
+function endGame(lose) {
+  if (lose) {
+    if (quizState !== SUBMIT_HIGH_SCORE) {
+      quizState = SUBMIT_HIGH_SCORE;
+      updatePage();
+    }
+
+    quiz.setAttribute("style", "display: flex");
+    regularText.setAttribute("style", "text-align: center");
+    document.querySelector("form").style.display = "none";
+
+    boldText.textContent = "YOU LOSE";
+    regularText.textContent = "You achieved a score of ZERO.\xa0 You don't get to enter a High Score.\xa0 Maybe you'll have better luck next time, but I doubt it.";
+    document.querySelector("#btn1").textContent = "Look at High Scores of other people who did better than you";
+  }
+  else
+    points = secondsLeft;
+
+  clearInterval(currentTimer);
+  currentTimer = undefined;
+  secondsLeft = 0;
+  document.querySelector(".seconds").textContent = secondsLeft;
+}
+
+// main update function
 function updatePage(goToNextPage = false) {
   if (goToNextPage)
     quizState++;
@@ -99,21 +186,21 @@ function updatePage(goToNextPage = false) {
   updateButtons();
   updateElements();
   updateStyle();
-  updateTimer();
 }
 
+// loads new text
 function updateText() {
   boldText.textContent = currentQuestion.boldText;
   regularText.textContent = currentQuestion.regularText;
-
-
 }
 
+// button update handler
 function updateButtons() {
   eraseButtons();
   addButtons(currentQuestion.buttonCount);
 }
 
+// adds/removes elements as needed
 function updateElements() {
   removeElements("answer-feedback");
 
@@ -129,53 +216,32 @@ function updateElements() {
   }
 }
 
+// some quiz states require different styling
 function updateStyle() {
   if (quizState === SUBMIT_HIGH_SCORE) {
     regularText.setAttribute("style", "text-align: start");
   }
   else if (quizState === HIGH_SCORES) {
     buttons.setAttribute("style", "display: flex");
+    quiz.setAttribute("style", "display: inline");
   }
 }
 
-function updateTimer() {
-  if (quizState === SUBMIT_HIGH_SCORE) {
-    points = secondsLeft;
-
-    console.log(points);
-    stopTimer(false);
-  }
-}
-
-function stopTimer(goToSubmit) {
-  document.querySelector(".seconds").textContent = 0;
-  secondsLeft = 0;
-  stopCounting = true;
-
-  if (goToSubmit) {
-    quizState = SUBMIT_HIGH_SCORE;
-    updatePage();
-  }
-}
-
+// adds elements for high score submit and high score pages
 function addElements(elName) {
   if (elName === "form") {
-    var formAlreadyPresent = document.querySelector("form");
+    var formEl = document.createElement("form");
+    var labelEl = document.createElement("label");
+    var inputEl = document.createElement("input");
 
-    if (!formAlreadyPresent) {
-      var formEl = document.createElement("form");
-      var labelEl = document.createElement("label");
-      var inputEl = document.createElement("input");
+    formEl.setAttribute("style", "margin-top: 10px");
+    labelEl.setAttribute("for", "initials");
+    inputEl.setAttribute("id", "initials");
+    labelEl.textContent = "Initials: ";
 
-      formEl.setAttribute("style", "margin-top: 10px");
-      labelEl.setAttribute("for", "initials");
-      inputEl.setAttribute("id", "initials");
-      labelEl.textContent = "Initials: ";
-
-      formEl.append(labelEl);
-      formEl.append(inputEl);
-      quiz.insertBefore(formEl, buttons);
-    }
+    formEl.append(labelEl);
+    formEl.append(inputEl);
+    quiz.insertBefore(formEl, buttons);
   }
   else if (elName === "high-scores") {
     var surroundingDiv = document.createElement("div");
@@ -193,6 +259,7 @@ function addElements(elName) {
   }
 }
 
+// removes temporary elements as needed
 function removeElements(elName) {
   if (elName === "form") {
     var formEl = document.querySelector("form");
@@ -214,6 +281,7 @@ function removeElements(elName) {
   }
 }
 
+// erases all button elements on page update
 function eraseButtons() {
   for (var i = 1; i <= 4; i++) {
     var button = document.querySelector("#btn" + i);
@@ -223,6 +291,7 @@ function eraseButtons() {
   }
 }
 
+// adds required number of buttons on page update
 function addButtons(buttonCount) {
   for (var i = 1; i <= buttonCount; i++) {
     var newBtn = document.createElement("button");
@@ -233,15 +302,19 @@ function addButtons(buttonCount) {
   }
 }
 
+// answer handler function
 function onAnswer(answer) {
+
+  // updatePage will change currentQuestion.rightAnswer so I save it here
   var rightAnswer = currentQuestion.rightAnswer;
 
   updatePage(true);
   checkAnswer(answer, rightAnswer);
+  checkGameStatus();
 }
 
+// validates answer, penalizes time on wrong answer
 function checkAnswer(answer, rightAnswer) {
-
   var correct = (answer === rightAnswer);
 
   addFeedback(correct);
@@ -250,6 +323,15 @@ function checkAnswer(answer, rightAnswer) {
     deductTime(15);
 }
 
+// ends game if time has run out due to penalties or player reaches submit high score screen
+function checkGameStatus() {
+  if (secondsLeft <= 0)
+    endGame(true);
+  else if (quizState === SUBMIT_HIGH_SCORE)
+    endGame(false);
+}
+
+// adds feedback element after player selects an answer
 function addFeedback(correct) {
   var answerFeedback = document.createElement("div");
 
@@ -263,55 +345,56 @@ function addFeedback(correct) {
   quiz.appendChild(answerFeedback);
 }
 
+// reduces time remaining
 function deductTime(val) {
   secondsLeft -= val;
-
-  console.log(secondsLeft);
-  console.log(points);
-
-  if (secondsLeft <= 0)
-    stopTimer(true);
 }
 
+// jumps directly to high score screen
 function displayHighScores() {
   quizState = HIGH_SCORES;
   updatePage();
 }
 
+// creates new high score object, adds it to global array
 function addHighScore() {
   var highScore = {
     initials: document.querySelector("input").value,
     score: points
   };
 
-  console.log(highScore);
-
+  // if nothing was loaded out of localStorage, change variable to an array
   if (highScores === null)
     highScores = [];
 
+  // don't save high score if player didn't enter initials, or if their score is zero
   if (highScore.initials === "" || highScore.score === 0)
     return;
 
   highScores.push(highScore);
 }
 
+// adds highScores variable to localStorage
 function saveHighScores() {
   localStorage.setItem("highScores", JSON.stringify(highScores));
 }
 
+// clears both global variable and localStorage
 function eraseHighScores() {
   highScores = [];
   saveHighScores();
 }
 
+// click event handler
 function handleClick(e) {
 
+  // button 1 click handling
   if (e.target.matches("#btn1")) {
     if (quizState === START) {
       secondsLeft = 76;
       quiz.setAttribute("style", "display: inline");
       updatePage(true);
-      // start timer
+      startTimer();
     }
     else if (quizState === SUBMIT_HIGH_SCORE) {
       addHighScore();
@@ -319,12 +402,14 @@ function handleClick(e) {
       updatePage(true);
     }
     else if (quizState === HIGH_SCORES) {
-      start();
+      startOver();
     }
     else {
       onAnswer(e.target.getAttribute("id"));
     }
   }
+
+  // button 2 click handling
   else if (e.target.matches("#btn2")) {
     if (quizState === HIGH_SCORES) {
       eraseHighScores();
@@ -334,21 +419,27 @@ function handleClick(e) {
       onAnswer(e.target.getAttribute("id"));
     }
   }
+
+  // button 3 click handling
   else if (e.target.matches("#btn3")) {
     onAnswer(e.target.getAttribute("id"));
   }
+
+  // button 4 click handling
   else if (e.target.matches("#btn4")) {
     onAnswer(e.target.getAttribute("id"));
   }
+
+  // "View High Scores" upper left text click handling
   else if (e.target.matches(".high-scores-link")) {
     if (quizState !== HIGH_SCORES) {
-      quiz.setAttribute("style", "display: inline");
       displayHighScores();
-      stopTimer(false);
+      endGame(false);
     }
   }
 }
 
+// I added this to prevent "Enter" on the Submit High Score box from reloading the page - also it allows "Enter" to function normally when "Submit" button is selected
 function handleKeydown(e) {
   if (quizState === SUBMIT_HIGH_SCORE)
     if (e.target.matches("input"))
@@ -360,7 +451,11 @@ function handleKeydown(e) {
       }
 }
 
-start();
+// initializes main menu style and content
+startOver();
 
+// click handler
 body.addEventListener("click", handleClick);
+
+// very specific use case keydown handler
 body.addEventListener("keydown", handleKeydown);
