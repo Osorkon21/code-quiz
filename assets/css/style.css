@@ -1,0 +1,108 @@
+/* applies to entire page, unless overwritten elsewhere */
+body {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
+  /* easier on the eyes than plain white */
+  background-color: cadetblue;
+}
+
+/* top bar spacing and position */
+header {
+  display: flex;
+  justify-content: space-between;
+  font-size: x-large;
+}
+
+/* bump top bar away from screen edge */
+.top-bar {
+  margin: 20px;
+}
+
+/* format highscore text */
+.high-scores-link {
+  color: blue;
+
+  /* Change cursor appearance on hover */
+  cursor: pointer;
+}
+
+/* on hover */
+.high-scores-link:hover {
+  color: orange;
+}
+
+/* on click */
+.high-scores-link:active {
+  color: black;
+}
+
+/* extra space between words for timer */
+.timer {
+  word-spacing: 0.10em;
+}
+
+/* quiz area position */
+main {
+  display: flex;
+  justify-content: center;
+}
+
+/* quiz area screen size */
+.quiz {
+  width: 55%;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* bold text in quiz area */
+.bold-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 30px;
+  font-weight: bolder;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+/* line spacing of non-bold text in quiz area */
+.regular-text {
+  line-height: 1.15;
+}
+
+/* high score styling */
+#high-score {
+  background-color: rgb(95, 158, 185);
+  padding: 5px;
+  font-weight: bold;
+}
+
+/* button styling */
+button {
+  display: block;
+  font-family: cursive, sans-serif;
+  font-size: 16px;
+  margin: 10px;
+  background-color: purple;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 8px 15px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* on button hover */
+button:hover {
+  opacity: 1;
+}
+
+/* on button press */
+button:active {
+  background-color: yellow;
+  color: black;
+}
+
+/* quiz answer feedback formatting */
+.answer-feedback {
+  border-top: 1px solid black;
+  padding-top: 10px;
+}
